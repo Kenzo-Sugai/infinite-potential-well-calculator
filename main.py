@@ -1,5 +1,75 @@
 import numpy as np 
 import sympy as sy
+import tkinter as ttk
+from tkinter.ttk import Combobox
+
+janela = ttk.Tk()
+janela.title("Main")
+janela.geometry("500x500")
+
+def dimension():
+  jnl = ttk.Tk()
+  jnl.geometry("500x500")
+  if cx == "1d":
+    jnl.title("1D")
+
+  if cx == "2d":
+    jnl.title("2D")
+    L_label = ttk.Label(jnl, text="L:", font=("Arial", 16))
+    L_label.place(relx=0.1, rely=0.3, anchor=ttk.CENTER)
+    L_entry = ttk.Entry(jnl, width=15, font=("Arial", 16))
+    L_entry.place(relx=0.5, rely=0.3, anchor=ttk.E)
+
+    nxi_label = ttk.Label(jnl, text="nxi:", font=("Arial", 16))
+    nxi_label.place(relx=0.11, rely=0.4, anchor=ttk.CENTER)
+    nxi_entry = ttk.Entry(jnl, width=2, font=("Arial", 16))
+    nxi_entry.place(relx=0.21, rely=0.4, anchor=ttk.E)
+
+    nyi_label = ttk.Label(jnl, text="nyi:", font=("Arial", 16))
+    nyi_label.place(relx=0.11, rely=0.48, anchor=ttk.CENTER)
+    nyi_entry = ttk.Entry(jnl, width=2, font=("Arial", 16))
+    nyi_entry.place(relx=0.21, rely=0.48, anchor=ttk.E)
+
+    nxf_label = ttk.Label(jnl, text="nxf:", font=("Arial", 16))
+    nxf_label.place(relx=0.3, rely=0.4, anchor=ttk.CENTER)
+    nxf_entry = ttk.Entry(jnl, width=2, font=("Arial", 16))
+    nxf_entry.place(relx=0.4, rely=0.4, anchor=ttk.E)
+
+    nyf_label = ttk.Label(jnl, text="nyf:", font=("Arial", 16))
+    nyf_label.place(relx=0.3, rely=0.48, anchor=ttk.CENTER)
+    nyf_entry = ttk.Entry(jnl, width=2, font=("Arial", 16))
+    nyf_entry.place(relx=0.4, rely=0.48, anchor=ttk.E)
+
+    def calc2d():
+      L = float(L_entry.get())
+      Nxi = int(nxi_entry.get())
+      Nyi = int(nyi_entry.get())
+      Nxf = int(nxf_entry.get())
+      Nyf = int(nyf_entry.get())
+
+      E = ((2)*(pow(hJ, 2))/(8*m*pow(L, 2)))/1.602E-19
+      print(f"[A] - E: {np.format_float_scientific(E, precision = 2, exp_digits = 1)} eV\n")
+
+      Eni = ((pow(Nxi, 2) + pow(Nyi, 2))*(pow(hJ, 2))/(8*m*pow(L, 2)))
+
+      print(f"[B] - Eni: {np.format_float_scientific(Eni/1.602E-19, precision = 2, exp_digits = 1)} eV\n")
+
+      Enf = ((pow(Nxf, 2) + pow(Nyf, 2))*(pow(hJ, 2))/(8*m*pow(L, 2)))
+
+      print(f"[B] - Enf: {np.format_float_scientific(Enf/1.602E-19, precision = 2, exp_digits = 1)} eV\n")
+
+      λi = hJ/np.sqrt(2*m*Eni)
+      λf = hJ/np.sqrt(2*m*Enf)
+
+      print(f"[C] - λi: {np.format_float_scientific(λi, precision = 2, exp_digits = 1)} m")
+      print(f"[C] - λf: {np.format_float_scientific(λf, precision = 2, exp_digits = 1)} m\n")
+
+    btn_calc = ttk.Button(jnl, text="Calcular", font=("Arial", 10), command=(calc2d))
+    btn_calc.place(relx= 0.70, rely=0.4 , anchor=ttk.CENTER)
+
+
+  if cx == "3d":
+    jnl.title("3D")
 
 def fi(x):
   return (sy.abs(sy.sqrt(2/L) * sy.sin((ni*sy.pi()/L)*x)))**2
@@ -13,17 +83,71 @@ Pm = 1.67e-27 # Massa Proton
 hJ = 6.626e-34 # Constante de Planck em Joule
 hEv = 4.136e-15 # Constante de Planck em Ev
 c = 3e8 # Velocidade da Luz
+  
+def massa_eletron():
+    global m
+    m = Em
+    selecionado_massa['text'] = "Massa: Eletron"
 
-type = input("Particula confinada: [Eletron|Proton]")
-type = type.lower()
+def massa_proton():
+    global m
+    m = Pm
+    selecionado_massa['text'] = "Massa: Proton"
 
-if type == "eletron":
-  m = Em
-if type == "proton":
-  m = Pm
+def def1d():
+    global cx 
+    cx = "1d"
+    selecionado_d['text'] = "Dimesão: 1d"
 
-cx = input("Tipo de caixa: [1D|2D|3D]")
-cx = cx.lower()
+def def2d():
+    global cx 
+    cx = "2d"
+    selecionado_d['text'] = "Dimesão: 2d"
+
+def def3d():
+    global cx 
+    cx = "3d"
+    selecionado_d['text'] = "Dimesão: 3d"
+
+
+titulo = ttk.Label(janela, text="Escolha a particula e a dimensão", font=("Arial Bold", 20))
+titulo.place(relx=0.5, rely=0.2, anchor=ttk.CENTER)
+
+massa_label = ttk.Label(janela, text="Massa:", font=("Arial Bold", 16))
+massa_label.place(relx=0.15, rely=0.3, anchor=ttk.CENTER)
+
+btn_eletron = ttk.Button(janela, text="Eletron", font=("Arial", 10), command=massa_eletron)
+btn_eletron.place(relx= 0.30, rely=0.3 , anchor=ttk.CENTER)
+
+btn_proton = ttk.Button(janela, text="Proton", font=("Arial", 10), command=massa_proton)
+btn_proton.place(relx= 0.45, rely=0.3 , anchor=ttk.CENTER)
+
+dimension_label = ttk.Label(janela, text="Dimensão da caixa:", font=("Arial Bold", 16))
+dimension_label.place(relx=0.2655, rely=0.4, anchor=ttk.CENTER)
+
+btn_1d = ttk.Button(janela, text="1D", font=("Arial", 10), command=def1d)
+btn_1d.place(relx= 0.50, rely=0.4 , anchor=ttk.CENTER)
+
+btn_2d = ttk.Button(janela, text="2D", font=("Arial", 10), command=def2d)
+btn_2d.place(relx= 0.60, rely=0.4 , anchor=ttk.CENTER)
+
+btn_3d = ttk.Button(janela, text="3D", font=("Arial", 10), command=def3d)
+btn_3d.place(relx= 0.70, rely=0.4 , anchor=ttk.CENTER)
+
+selecionado = ttk.Label(janela, text="Selecionados", font=("Arial", 10))
+selecionado.place(relx=0.5, rely=0.75, anchor=ttk.CENTER)
+selecionado_massa = ttk.Label(janela, text="Massa: ", font=("Arial", 10))
+selecionado_massa.place(relx=0.5, rely=0.80, anchor=ttk.CENTER)
+selecionado_d = ttk.Label(janela, text="Dimensão: ", font=("Arial", 10))
+selecionado_d.place(relx=0.5, rely=0.85, anchor=ttk.CENTER)
+
+continuar = ttk.Button(janela, text="Continuar", font=("Arial", 10), command=dimension)
+continuar.place(relx= 0.5, rely=0.9, anchor=ttk.CENTER)
+
+janela.mainloop()
+
+print(m)
+print(cx)
 
 if cx == "1d":
   print("[1] - Determinação da função de onda quântica e outros parâmetros")
@@ -90,7 +214,6 @@ if cx == "1d":
 
      # ----- # F # ----- #
 
-
     thetai = ni*np.pi*a/L
     thetaf = ni*np.pi*b/L
     p = sy.integrate((2/ni*sy.pi)*(pow(sy.sin(x),2)), (x, thetai, thetaf))
@@ -156,8 +279,6 @@ if cx == "2d":
 
   print(f"[C] - λi: {np.format_float_scientific(λi, precision = 2, exp_digits = 1)} m")
   print(f"[C] - λf: {np.format_float_scientific(λf, precision = 2, exp_digits = 1)} m\n")
-
-  
 
 
  #  ----- # Exercicio 4 # ----- #
