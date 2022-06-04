@@ -4,6 +4,13 @@ import tkinter as ttk
 from tkinter.ttk import Combobox
 from formulas import *
 
+m = 0 # Massa
+Em = 9.10e-31 # Massa Eletron
+Pm = 1.67e-27 # Massa Proton
+hJ = 6.626e-34 # Constante de Planck em Joule
+hEv = 4.136e-15 # Constante de Planck em Ev
+c = 3e8 # Velocidade da Luz
+
 janela = ttk.Tk()
 janela.title("Main")
 janela.geometry("500x500")
@@ -13,7 +20,180 @@ def dimension():
   jnl.geometry("500x500")
   if cx == "1d":
     jnl.title("1D")
+    L_label = ttk.Label(jnl, text="L:", font=("Arial", 16))
+    L_label.place(relx=0.1, rely=0.2, anchor=ttk.CENTER)
+    L_entry = ttk.Entry(jnl, width=15, font=("Arial", 16))
+    L_entry.place(relx=0.5, rely=0.2, anchor=ttk.E)
 
+    ni_label = ttk.Label(jnl, text="ni:", font=("Arial", 16))
+    ni_label.place(relx=0.11, rely=0.3, anchor=ttk.CENTER)
+    ni_entry = ttk.Entry(jnl, width=2, font=("Arial", 16))
+    ni_entry.place(relx=0.21, rely=0.3, anchor=ttk.E)
+
+    nf_label = ttk.Label(jnl, text="nf:", font=("Arial", 16))
+    nf_label.place(relx=0.11, rely=0.38, anchor=ttk.CENTER)
+    nf_entry = ttk.Entry(jnl, width=2, font=("Arial", 16))
+    nf_entry.place(relx=0.21, rely=0.38, anchor=ttk.E)
+
+    a_label = ttk.Label(jnl, text="a:", font=("Arial", 16))
+    a_label.place(relx=0.25, rely=0.3, anchor=ttk.CENTER)
+    a_entry = ttk.Entry(jnl, width=8, font=("Arial", 16))
+    a_entry.place(relx=0.50, rely=0.3, anchor=ttk.E)
+
+    b_label = ttk.Label(jnl, text="b:", font=("Arial", 16))
+    b_label.place(relx=0.25, rely=0.38, anchor=ttk.CENTER)
+    b_entry = ttk.Entry(jnl, width=8, font=("Arial", 16))
+    b_entry.place(relx=0.50, rely=0.38, anchor=ttk.E)
+
+    A_label = ttk.Label(jnl, text="A:", font=("Arial", 16))
+    A_label.place(relx=0.1, rely=0.6, anchor=ttk.CENTER)
+    A_entry = ttk.Entry(jnl, width=15, font=("Arial", 16))
+    A_entry.place(relx=0.5, rely=0.6, anchor=ttk.E)
+
+    k_label = ttk.Label(jnl, text="k:", font=("Arial", 16))
+    k_label.place(relx=0.1, rely=0.68, anchor=ttk.CENTER)
+    k_entry = ttk.Entry(jnl, width=15, font=("Arial", 16))
+    k_entry.place(relx=0.5, rely=0.68, anchor=ttk.E)
+
+    def calc1dA():
+      L = float(L_entry.get())
+      ni = int(ni_entry.get())
+      nf = int(nf_entry.get())
+
+      E = Energia(hJ, m, L)
+
+      a = float(a_entry.get())
+
+      b = float(b_entry.get())  
+
+      x = sy.Symbol("x")
+
+      A = A_calc(L)
+
+      Ki = k_Inicial(ni, L)
+      Kf = k_Final(nf, L)
+
+      K = Kf - Ki
+
+      # ----- # A # ----- #
+
+      def Func_quant_ini(x):
+        return A*np.sin(Ki*np.pi*ni*x)
+      
+      def Func_quant_fin(x):
+        return A*np.sin(Kf*np.pi*nf*x)
+
+      # ----- # B # ----- #
+
+      Eni = Energia_Inicial(ni, E)
+      Enf = Energia_Final(nf, E)
+      
+      En = Enf/1.602e-19 - Eni/1.602e-19
+
+      λ = Comprimento_Foton(hEv, En)
+
+      Vi = Velocidade(Eni, m)
+      Vf = Velocidade(Enf, m)
+
+      #D
+
+        # ----- # E # ----- #
+
+      λi = Comprimento(hJ, m, Eni)
+      λf = Comprimento(hJ, m, Enf)
+
+      # ----- # F # ----- #
+
+      thetai = Theta(ni, a, L)
+      thetaf = Theta(ni, b, L)
+
+      pi = sy.integrate((2/ni*sy.pi)*(pow(sy.sin(x),2)), (x, thetai, thetaf))
+      
+      thetai = Theta(nf, a, L)
+      thetaf = Theta(nf, b, L)
+      pf = sy.integrate((2/nf*sy.pi)*(pow(sy.sin(x),2)), (x, thetai, thetaf))
+
+      resp = ttk.Tk()
+      resp.geometry("500x500")
+      resp.title("Resposta")
+      
+      Energia_label = ttk.Label(resp, text=f"Energia Fundamental: {np.format_float_scientific(E, precision = 2, exp_digits = 1)}", font=("Arial", 16))
+      Energia_label.place(relx=0.5, rely=0.15, anchor=ttk.CENTER)
+
+      form_label = ttk.Label(resp, text=f"A: {np.format_float_scientific(A, precision=3, exp_digits=1)} Ki: {np.format_float_scientific(Ki, precision=3, exp_digits=1)} Kf: {np.format_float_scientific(Kf, precision=3, exp_digits=1)}", font=("Arial", 16))
+      form_label.place(relx=0.5, rely=0.20, anchor=ttk.CENTER)
+
+      Energia_Inicial_label = ttk.Label(resp, text=f"Energia Incial: {np.format_float_scientific(Eni, precision=3, exp_digits=1)} J | {np.format_float_scientific(Eni/1.602E-19, precision = 2, exp_digits = 1)} Ev", font=("Arial", 16))
+      Energia_Inicial_label.place(relx=0.5, rely=0.25, anchor=ttk.CENTER)
+
+      Energia_Final_label = ttk.Label(resp, text=f"Energia Final: {np.format_float_scientific(Enf, precision=3, exp_digits=1)} J | {np.format_float_scientific(Enf/1.602E-19, precision = 2, exp_digits = 1)} Ev", font=("Arial", 16))
+      Energia_Final_label.place(relx=0.5, rely=0.30, anchor=ttk.CENTER)
+
+      Energia_Foton_label = ttk.Label(resp, text=f"Energia do Fóton: {np.format_float_scientific(En, precision = 2, exp_digits = 1)} Ev", font=("Arial", 16))
+      Energia_Foton_label.place(relx=0.5, rely=0.35, anchor=ttk.CENTER)
+
+      Comprimento_Foton_label = ttk.Label(resp, text=f"Comprimento do Fóton: {np.format_float_scientific(λ, precision = 2, exp_digits = 1)} m", font=("Arial", 16))
+      Comprimento_Foton_label.place(relx=0.5, rely=0.40, anchor=ttk.CENTER)
+
+      Velocidade_Inicial_label = ttk.Label(resp, text=f"Velocidade Inicial: {np.format_float_scientific(Vi, precision = 2, exp_digits = 1)} m/s", font=("Arial", 16))
+      Velocidade_Inicial_label.place(relx=0.5, rely=0.45, anchor=ttk.CENTER)
+
+      Velocidade_Final_label = ttk.Label(resp, text=f"Velocidade Final: {np.format_float_scientific(Vf, precision = 2, exp_digits = 1)} m/s", font=("Arial", 16))
+      Velocidade_Final_label.place(relx=0.5, rely=0.50, anchor=ttk.CENTER)
+
+      Comprimento_Inicial_label = ttk.Label(resp, text=f"Comprimento Inicial: {np.format_float_scientific(λi, precision = 2, exp_digits = 1)} m", font=("Arial", 16))
+      Comprimento_Inicial_label.place(relx=0.5, rely=0.55, anchor=ttk.CENTER)
+
+      Comprimento_Final_label = ttk.Label(resp, text=f"Comprimento Final: {np.format_float_scientific(λf, precision = 2, exp_digits = 1)} m", font=("Arial", 16))
+      Comprimento_Final_label.place(relx=0.5, rely=0.60, anchor=ttk.CENTER)
+
+      Probabilidade_Inicial_label = ttk.Label(resp, text=f"Probabilidade Inicial: {np.format_float_scientific(pi, precision = 2, exp_digits = 1)} %", font=("Arial", 16))
+      Probabilidade_Inicial_label.place(relx=0.5, rely=0.65, anchor=ttk.CENTER)
+
+      Probabilidade_Final_label = ttk.Label(resp, text=f"Probabilidade Final: {np.format_float_scientific(pf, precision = 2, exp_digits = 1)} %", font=("Arial", 16))
+      Probabilidade_Final_label.place(relx=0.5, rely=0.70, anchor=ttk.CENTER)
+
+    def calc1dB():
+      A = float(A_entry.get())
+      k = float(k_entry.get())
+
+      # 2 ----- # A # ----- #
+
+      L = L_calc(A)
+
+      # 2 ----- # B # ----- #
+
+      n = n_calc(k, L)
+
+      # 2 ----- # C # ----- #
+
+      E = Energia(hJ, m, L)
+
+      # 2 ----- # D # ----- #
+
+      V = Velocidade(E, m)
+
+      resp = ttk.Tk()
+      resp.geometry("500x500")
+      resp.title("Resposta")
+
+      Largura_label = ttk.Label(resp, text=f"Largura: {np.format_float_scientific(L*10e8, precision=3, exp_digits=1)} nm", font=("Arial", 16))
+      Largura_label.place(relx=0.5, rely=0.10, anchor=ttk.CENTER)
+
+      n_label = ttk.Label(resp, text=f"n: {np.format_float_scientific(n, precision=3, exp_digits=1)}", font=("Arial", 16))
+      n_label.place(relx=0.5, rely=0.20, anchor=ttk.CENTER)
+
+      Energia_label = ttk.Label(resp, text=f"Energia Fundamental: {np.format_float_scientific(E, precision = 2, exp_digits = 1)} J | {np.format_float_scientific(E/1.602e-19, precision = 2, exp_digits = 1)} Ev", font=("Arial", 16))
+      Energia_label.place(relx=0.5, rely=0.30, anchor=ttk.CENTER)
+
+      Velocidade_label = ttk.Label(resp, text=f"Energia Final: {np.format_float_scientific(V, precision=3, exp_digits=1)} m/s", font=("Arial", 16))
+      Velocidade_label.place(relx=0.5, rely=0.40, anchor=ttk.CENTER)
+
+    btn_calcA = ttk.Button(jnl, text="Calcular", font=("Arial", 10), command=(calc1dA))
+    btn_calcA.place(relx= 0.65, rely=0.3 , anchor=ttk.CENTER)
+
+    btn_calcB = ttk.Button(jnl, text="Calcular", font=("Arial", 10), command=(calc1dB))
+    btn_calcB.place(relx= 0.65, rely=0.6 , anchor=ttk.CENTER)
   if cx == "2d":
     jnl.title("2D")
     L_label = ttk.Label(jnl, text="L:", font=("Arial", 16))
@@ -49,21 +229,32 @@ def dimension():
       Nyf = int(nyf_entry.get())
 
       E = 2*Energia(hJ, m, L)/1.602E-19
-      print(f"[A] - E: {np.format_float_scientific(E, precision = 2, exp_digits = 1)} eV\n")
 
       Eni = Energia_Inicial2D(Nxi, Nyi, hJ, m, L)
 
-      print(f"[B] - Eni: {np.format_float_scientific(Eni/1.602E-19, precision = 2, exp_digits = 1)} eV\n")
-
       Enf = Energia_Final2D(Nxf, Nyf, hJ, m, L)
-
-      print(f"[B] - Enf: {np.format_float_scientific(Enf/1.602E-19, precision = 2, exp_digits = 1)} eV\n")
 
       λi = Comprimento(hJ, m, Eni)
       λf = Comprimento(hJ, m, Enf)
 
-      print(f"[C] - λi: {np.format_float_scientific(λi, precision = 2, exp_digits = 1)} m")
-      print(f"[C] - λf: {np.format_float_scientific(λf, precision = 2, exp_digits = 1)} m\n")
+      resp = ttk.Tk()
+      resp.geometry("500x500")
+      resp.title("Resposta")
+
+      Energia_label = ttk.Label(resp, text=f"Energia Fundamental: {np.format_float_scientific(E, precision = 2, exp_digits = 1)}", font=("Arial", 16))
+      Energia_label.place(relx=0.5, rely=0.1, anchor=ttk.CENTER)
+
+      Energia_Inicial_label = ttk.Label(resp, text=f"Energia Incial: {np.format_float_scientific(Eni/1.602E-19, precision = 2, exp_digits = 1)} Ev", font=("Arial", 16))
+      Energia_Inicial_label.place(relx=0.5, rely=0.3, anchor=ttk.CENTER)
+
+      Energia_Final_label = ttk.Label(resp, text=f"Energia Final: {np.format_float_scientific(Enf/1.602E-19, precision = 2, exp_digits = 1)} Ev", font=("Arial", 16))
+      Energia_Final_label.place(relx=0.5, rely=0.5, anchor=ttk.CENTER)
+
+      Comprimento_Inicial_label = ttk.Label(resp, text=f"Comprimento Incial: {np.format_float_scientific(λi, precision = 2, exp_digits = 1)} m", font=("Arial", 16))
+      Comprimento_Inicial_label.place(relx=0.5, rely=0.7, anchor=ttk.CENTER)
+
+      Comprimento_Final_label = ttk.Label(resp, text=f"Comprimento Final: {np.format_float_scientific(λf, precision = 2, exp_digits = 1)} m", font=("Arial", 16))
+      Comprimento_Final_label.place(relx=0.5, rely=0.9, anchor=ttk.CENTER)
 
     btn_calc = ttk.Button(jnl, text="Calcular", font=("Arial", 10), command=(calc2d))
     btn_calc.place(relx= 0.70, rely=0.4 , anchor=ttk.CENTER)
@@ -71,19 +262,81 @@ def dimension():
 
   if cx == "3d":
     jnl.title("3D")
+    L_label = ttk.Label(jnl, text="L:", font=("Arial", 16))
+    L_label.place(relx=0.1, rely=0.3, anchor=ttk.CENTER)
+    L_entry = ttk.Entry(jnl, width=15, font=("Arial", 16))
+    L_entry.place(relx=0.5, rely=0.3, anchor=ttk.E)
 
-def fi(x):
-  return (sy.abs(sy.sqrt(2/L) * sy.sin((ni*sy.pi()/L)*x)))**2
- 
-def ff(x):
-  return (sy.abs(sy.sqrt(2/L) * sy.sin((nf*np.pi()/L)*x)))**2
+    nxi_label = ttk.Label(jnl, text="nxi:", font=("Arial", 16))
+    nxi_label.place(relx=0.11, rely=0.4, anchor=ttk.CENTER)
+    nxi_entry = ttk.Entry(jnl, width=2, font=("Arial", 16))
+    nxi_entry.place(relx=0.21, rely=0.4, anchor=ttk.E)
 
-m = 0 # Massa
-Em = 9.10e-31 # Massa Eletron
-Pm = 1.67e-27 # Massa Proton
-hJ = 6.626e-34 # Constante de Planck em Joule
-hEv = 4.136e-15 # Constante de Planck em Ev
-c = 3e8 # Velocidade da Luz
+    nyi_label = ttk.Label(jnl, text="nyi:", font=("Arial", 16))
+    nyi_label.place(relx=0.11, rely=0.48, anchor=ttk.CENTER)
+    nyi_entry = ttk.Entry(jnl, width=2, font=("Arial", 16))
+    nyi_entry.place(relx=0.21, rely=0.48, anchor=ttk.E)
+
+    nzi_label = ttk.Label(jnl, text="nzi:", font=("Arial", 16))
+    nzi_label.place(relx=0.11, rely=0.56, anchor=ttk.CENTER)
+    nzi_entry = ttk.Entry(jnl, width=2, font=("Arial", 16))
+    nzi_entry.place(relx=0.21, rely=0.56, anchor=ttk.E)
+
+    nxf_label = ttk.Label(jnl, text="nxf:", font=("Arial", 16))
+    nxf_label.place(relx=0.3, rely=0.4, anchor=ttk.CENTER)
+    nxf_entry = ttk.Entry(jnl, width=2, font=("Arial", 16))
+    nxf_entry.place(relx=0.4, rely=0.4, anchor=ttk.E)
+
+    nyf_label = ttk.Label(jnl, text="nyf:", font=("Arial", 16))
+    nyf_label.place(relx=0.3, rely=0.48, anchor=ttk.CENTER)
+    nyf_entry = ttk.Entry(jnl, width=2, font=("Arial", 16))
+    nyf_entry.place(relx=0.4, rely=0.48, anchor=ttk.E)
+
+    nzf_label = ttk.Label(jnl, text="nzf:", font=("Arial", 16))
+    nzf_label.place(relx=0.3, rely=0.56, anchor=ttk.CENTER)
+    nzf_entry = ttk.Entry(jnl, width=2, font=("Arial", 16))
+    nzf_entry.place(relx=0.4, rely=0.56, anchor=ttk.E)
+
+    def calc3d():
+      L = float(L_entry.get())
+      Nxi = int(nxi_entry.get())
+      Nyi = int(nyi_entry.get())
+      Nzi = int(nzi_entry.get())
+      Nxf = int(nxf_entry.get())
+      Nyf = int(nyf_entry.get())
+      Nzf = int(nzf_entry.get())
+
+      E = 3*Energia(hJ, m, L)/1.602E-19
+
+      Eni = Energia_Inicial3D(Nxi, Nyi, Nzi, hJ, m, L)/1.602E-19
+
+      Enf = Energia_Final3D(Nxf, Nyf, Nzf, hJ, m, L)/1.602E-19
+
+      En = Eni - Enf
+
+      λ = Comprimento_Foton(hEv, En)
+
+      resp = ttk.Tk()
+      resp.geometry("500x500")
+      resp.title("Resposta")
+      
+      Energia_label = ttk.Label(resp, text=f"Energia Fundamental: {np.format_float_scientific(E, precision = 2, exp_digits = 1)}", font=("Arial", 16))
+      Energia_label.place(relx=0.5, rely=0.1, anchor=ttk.CENTER)
+
+      Energia_Inicial_label = ttk.Label(resp, text=f"Energia Incial: {np.format_float_scientific(Eni, precision = 2, exp_digits = 1)} Ev", font=("Arial", 16))
+      Energia_Inicial_label.place(relx=0.5, rely=0.3, anchor=ttk.CENTER)
+
+      Energia_Final_label = ttk.Label(resp, text=f"Energia Final: {np.format_float_scientific(Enf, precision = 2, exp_digits = 1)} Ev", font=("Arial", 16))
+      Energia_Final_label.place(relx=0.5, rely=0.5, anchor=ttk.CENTER)
+
+      Energia_Foton_label = ttk.Label(resp, text=f"Energia do Fóton: {np.format_float_scientific(En, precision = 2, exp_digits = 1)} Ev", font=("Arial", 16))
+      Energia_Foton_label.place(relx=0.5, rely=0.7, anchor=ttk.CENTER)
+
+      Comprimento_label = ttk.Label(resp, text=f"Comprimento da Onda: {np.format_float_scientific(λ, precision = 2, exp_digits = 1)} m", font=("Arial", 16))
+      Comprimento_label.place(relx=0.5, rely=0.9, anchor=ttk.CENTER)
+
+    btn_calc = ttk.Button(jnl, text="Calcular", font=("Arial", 10), command=(calc3d))
+    btn_calc.place(relx= 0.70, rely=0.4 , anchor=ttk.CENTER)
   
 def massa_eletron():
     global m
@@ -98,17 +351,17 @@ def massa_proton():
 def def1d():
     global cx 
     cx = "1d"
-    selecionado_d['text'] = "Dimesão: 1d"
+    selecionado_d['text'] = "Dimesão: 1D"
 
 def def2d():
     global cx 
     cx = "2d"
-    selecionado_d['text'] = "Dimesão: 2d"
+    selecionado_d['text'] = "Dimesão: 2D"
 
 def def3d():
     global cx 
     cx = "3d"
-    selecionado_d['text'] = "Dimesão: 3d"
+    selecionado_d['text'] = "Dimesão: 3D"
 
 
 titulo = ttk.Label(janela, text="Escolha a particula e a dimensão", font=("Arial Bold", 20))
@@ -146,171 +399,3 @@ continuar = ttk.Button(janela, text="Continuar", font=("Arial", 10), command=dim
 continuar.place(relx= 0.5, rely=0.9, anchor=ttk.CENTER)
 
 janela.mainloop()
-
-print(m)
-print(cx)
-
-if cx == "1d":
-  print("[1] - Determinação da função de onda quântica e outros parâmetros")
-  print("[2] - Cálculo dos parâmetros da caixa e partícula, dada a função de onda")
-  t = int(input())
-  if t == 1:
-    print("Se não houver valor, digite null")
-    L = float(input("Largura: "))
-    ni = int(input("Digite o número quantico inicial: "))
-    nf = int(input("Digite o número quantico final: "))
-
-    E = (pow(hJ, 2)/((8*m) * pow(L, 2)))
-    print(f"[A] E1: {np.format_float_scientific(E, precision = 2, exp_digits = 1)}")
-    print("Região do poço para procurar pela partícula [para cálculo de P(a ≤ x ≤ b)]: ")
-
-    a = float(input("a - Coordenada dentro do poço: "))
-
-    b = float(input("b - Coordenada dentro do poço: "))  
-
-    x = sy.Symbol("x")
-
-    A = np.sqrt(2/L)
-
-    Ki = (ni*np.pi)/L
-    Kf = (nf*np.pi)/L
-
-    print(f"A: {np.format_float_scientific(A, precision=3, exp_digits=1)} Ki: {np.format_float_scientific(Ki, precision=3, exp_digits=1)} Kf {np.format_float_scientific(Kf, precision=3, exp_digits=1)}\n")
-
-    # ----- # A # ----- #
-
-    def Func_quant_ini(x):
-     return A*np.sin(Ki*np.pi*ni*x)
-    
-    def Func_quant_fin(x):
-     return A*np.sin(Kf*np.pi*nf*x)
-
-    # ----- # B # ----- #
-
-    Eni = (pow(ni, 2)*E)
-    Enf = (pow(nf, 2)*E)
-    
-    print(f"[B] - Eni: {np.format_float_scientific(Eni, precision=3, exp_digits=1)} J | Enf: {np.format_float_scientific(Enf, precision=3, exp_digits=1)} J")
-
-    print(f"[B] - Eni: {np.format_float_scientific(Eni/1.602e-19, precision=3, exp_digits=1)} Ev | Enf: {np.format_float_scientific(Enf/1.602e-19, precision=3, exp_digits=1)} Ev\n")
-    
-    
-    En = Enf/1.602e-19 - Eni/1.602e-19
-    λ = hEv*c/En
-
-    print(f"[C] - En: {(np.format_float_scientific(En, precision=3, exp_digits=1))} Ev | En: {(np.format_float_scientific(λ, precision=3, exp_digits=1))} J\n") #C
-
-    Vi = np.sqrt((2*Eni)/m)
-    Vf = np.sqrt((2*Enf)/m)
-
-    #D
-    print(f"[D] - Vi: {(np.format_float_scientific(Vi, precision=3, exp_digits=1))} | Vf: {(np.format_float_scientific(Vf, precision=3, exp_digits=1))}\n")
-
-      # ----- # E # ----- #
-
-    λi = hJ/np.sqrt(2*m*Eni)
-    λf = hJ/np.sqrt(2*m*Enf)
-
-    print(f"[E] - λi: {(np.format_float_scientific(λi, precision=3, exp_digits=1))} | λf: {(np.format_float_scientific(λf, precision=3, exp_digits=1))}\n")
-
-     # ----- # F # ----- #
-
-    thetai = ni*np.pi*a/L
-    thetaf = ni*np.pi*b/L
-    p = sy.integrate((2/ni*sy.pi)*(pow(sy.sin(x),2)), (x, thetai, thetaf))
-    print(f"[F] - ni = {np.format_float_scientific(ni, precision = 2, exp_digits = 1)}, P({np.format_float_scientific(thetai, precision = 2, exp_digits = 1)} ≤ x ≤ {np.format_float_scientific(thetaf, precision = 2, exp_digits = 1)}) = {np.format_float_scientific(p*10, precision = 2, exp_digits = 1)}%\n")
-    thetai = nf*np.pi*a/L
-    thetaf = nf*np.pi*b/L
-    p = sy.integrate((2/nf*sy.pi)*(pow(sy.sin(x),2)), (x, thetai, thetaf))
-    print(f"[F] - nf = {np.format_float_scientific(nf, precision = 2, exp_digits = 1)}, P({np.format_float_scientific(thetai, precision = 2, exp_digits = 1)} ≤ x ≤ {np.format_float_scientific(thetaf, precision = 2, exp_digits = 1)}) = {np.format_float_scientific(p*10, precision = 2, exp_digits = 1)}%")
-  if t == 2:
-    A = float(input("Digite um valor de A no SI: "))
-    k = float(input("Digite um valor de k no SI: "))
-
-    # 2 ----- # A # ----- #
-
-    L = 2/pow(A, 2)
-
-    print(f"[A] - Largura: {np.format_float_scientific(L, precision = 2, exp_digits = 1)} m | {np.format_float_scientific(L*10e8, precision = 2, exp_digits = 1)} nm\n")
-
-    # 2 ----- # B # ----- #
-
-    n = (k*L)/np.pi
-
-    print(f"[B] - n: {round(n)}\n")
-
-    # 2 ----- # C # ----- #
-
-    E = (pow(hJ, 2)/((8*m) * pow(L, 2)))
-    
-
-    print(f"[C] - E: {np.format_float_scientific(E, precision = 2, exp_digits = 1)} J | E: {np.format_float_scientific(E/1.602e-19, precision = 2, exp_digits = 1)} Ev")
-
-    # 2 ----- # D # ----- #
-
-    V = np.sqrt((2*E)/m)
-
-    print(f"[E] - V: {np.format_float_scientific(V, precision = 2, exp_digits = 1)}\n")
-
-    #  ----- # Exercicio 3 # ----- #
-if cx == "2d":
-  L = float(input("Largura: "))
-
-  Nxi = int(input("Numero inicial da particula confinada x: "))
-  Nyi = int(input("Numero inicial da particula confinada y: "))
-
-  Nxf = int(input("Numero final da particula confinada x: "))
-  Nyf = int(input("Numero final da particula confinada y: "))
-
-  # 3 ----- # A # ----- #
-
-  E = ((2)*(pow(hJ, 2))/(8*m*pow(L, 2)))/1.602E-19
-  print(f"[A] - E: {np.format_float_scientific(E, precision = 2, exp_digits = 1)} eV\n")
-
-  Eni = ((pow(Nxi, 2) + pow(Nyi, 2))*(pow(hJ, 2))/(8*m*pow(L, 2)))
-
-  print(f"[B] - Eni: {np.format_float_scientific(Eni/1.602E-19, precision = 2, exp_digits = 1)} eV\n")
-
-  Enf = ((pow(Nxf, 2) + pow(Nyf, 2))*(pow(hJ, 2))/(8*m*pow(L, 2)))
-
-  print(f"[B] - Enf: {np.format_float_scientific(Enf/1.602E-19, precision = 2, exp_digits = 1)} eV\n")
-
-  λi = hJ/np.sqrt(2*m*Eni)
-  λf = hJ/np.sqrt(2*m*Enf)
-
-  print(f"[C] - λi: {np.format_float_scientific(λi, precision = 2, exp_digits = 1)} m")
-  print(f"[C] - λf: {np.format_float_scientific(λf, precision = 2, exp_digits = 1)} m\n")
-
-
- #  ----- # Exercicio 4 # ----- #
-if cx == "3d":
-  L = float(input("Largura: "))
-
-  Nxi = int(input("Numero inicial da particula confinada x: "))
-  Nyi = int(input("Numero inicial da particula confinada y: "))
-  Nzi = int(input("Numero inicial da particula confinada z: "))
-
-  Nxf = int(input("Numero final da particula confinada x: "))
-  Nyf = int(input("Numero final da particula confinada y: "))
-  Nzf = int(input("Numero final da particula confinada z: "))
-
-  E = ((3)*(pow(hJ,2))/(8*m*pow(L, 2)))/1.602E-19
-  print(f"[A] - {np.format_float_scientific(E, precision = 2, exp_digits = 1)}")
-
-  Eni = ((pow(Nxi, 2) + pow(Nyi, 2) + pow(Nzi, 2))*(pow(hJ, 2))/(8*m*pow(L, 2)))/1.602E-19
-
-  print(f"[B] - Eni: {np.format_float_scientific(Eni, precision = 2, exp_digits = 1)} eV")
-
-  Enf = ((pow(Nxf, 2) + pow(Nyf, 2) + pow(Nzf, 2))*(pow(hJ, 2))/(8*m*pow(L, 2)))/1.602E-19
-
-  print(f"[B] - Enf: {np.format_float_scientific(Enf, precision = 2, exp_digits = 1)} eV")
-
-  En = Eni - Enf
-
-  λ = (hEv*c)/En
-
-  print(f"[C] - En: {np.format_float_scientific(En, precision = 2, exp_digits = 1)} eV")
-  
-  print(f"[C] - λ: {np.format_float_scientific(λ, precision = 2, exp_digits = 1)} eV")
-  
-  
