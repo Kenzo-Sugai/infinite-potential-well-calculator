@@ -2,6 +2,7 @@ import numpy as np
 import sympy as sy
 import tkinter as ttk
 from tkinter.ttk import Combobox
+from formulas import *
 
 janela = ttk.Tk()
 janela.title("Main")
@@ -47,19 +48,19 @@ def dimension():
       Nxf = int(nxf_entry.get())
       Nyf = int(nyf_entry.get())
 
-      E = ((2)*(pow(hJ, 2))/(8*m*pow(L, 2)))/1.602E-19
+      E = 2*Energia(hJ, m, L)/1.602E-19
       print(f"[A] - E: {np.format_float_scientific(E, precision = 2, exp_digits = 1)} eV\n")
 
-      Eni = ((pow(Nxi, 2) + pow(Nyi, 2))*(pow(hJ, 2))/(8*m*pow(L, 2)))
+      Eni = Energia_Inicial2D(Nxi, Nyi, hJ, m, L)
 
       print(f"[B] - Eni: {np.format_float_scientific(Eni/1.602E-19, precision = 2, exp_digits = 1)} eV\n")
 
-      Enf = ((pow(Nxf, 2) + pow(Nyf, 2))*(pow(hJ, 2))/(8*m*pow(L, 2)))
+      Enf = Energia_Final2D(Nxf, Nyf, hJ, m, L)
 
       print(f"[B] - Enf: {np.format_float_scientific(Enf/1.602E-19, precision = 2, exp_digits = 1)} eV\n")
 
-      λi = hJ/np.sqrt(2*m*Eni)
-      λf = hJ/np.sqrt(2*m*Enf)
+      λi = Comprimento(hJ, m, Eni)
+      λf = Comprimento(hJ, m, Enf)
 
       print(f"[C] - λi: {np.format_float_scientific(λi, precision = 2, exp_digits = 1)} m")
       print(f"[C] - λf: {np.format_float_scientific(λf, precision = 2, exp_digits = 1)} m\n")
